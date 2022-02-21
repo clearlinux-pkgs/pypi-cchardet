@@ -4,7 +4,7 @@
 #
 Name     : pypi-cchardet
 Version  : 2.1.7
-Release  : 1
+Release  : 2
 URL      : https://files.pythonhosted.org/packages/a8/5d/090c9f0312b7988a9433246c9cf0b566b1ae1374368cfb8ac897218a4f65/cchardet-2.1.7.tar.gz
 Source0  : https://files.pythonhosted.org/packages/a8/5d/090c9f0312b7988a9433246c9cf0b566b1ae1374368cfb8ac897218a4f65/cchardet-2.1.7.tar.gz
 Summary  : cChardet is high speed universal character encoding detector.
@@ -55,8 +55,6 @@ Summary: python3 components for the pypi-cchardet package.
 Group: Default
 Requires: python3-core
 Provides: pypi(cchardet)
-Requires: pypi(requests)
-Requires: pypi(wikipedia)
 
 %description python3
 python3 components for the pypi-cchardet package.
@@ -71,7 +69,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1641422214
+export SOURCE_DATE_EPOCH=1645465247
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
