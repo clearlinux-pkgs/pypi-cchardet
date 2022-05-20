@@ -4,13 +4,15 @@
 #
 Name     : pypi-cchardet
 Version  : 2.1.7
-Release  : 2
+Release  : 3
 URL      : https://files.pythonhosted.org/packages/a8/5d/090c9f0312b7988a9433246c9cf0b566b1ae1374368cfb8ac897218a4f65/cchardet-2.1.7.tar.gz
 Source0  : https://files.pythonhosted.org/packages/a8/5d/090c9f0312b7988a9433246c9cf0b566b1ae1374368cfb8ac897218a4f65/cchardet-2.1.7.tar.gz
 Summary  : cChardet is high speed universal character encoding detector.
 Group    : Development/Tools
 License  : GPL-2.0 LGPL-2.1 MPL-1.1
 Requires: pypi-cchardet-bin = %{version}-%{release}
+Requires: pypi-cchardet-filemap = %{version}-%{release}
+Requires: pypi-cchardet-lib = %{version}-%{release}
 Requires: pypi-cchardet-license = %{version}-%{release}
 Requires: pypi-cchardet-python = %{version}-%{release}
 Requires: pypi-cchardet-python3 = %{version}-%{release}
@@ -28,9 +30,28 @@ BuildRequires : pypi(wikipedia)
 Summary: bin components for the pypi-cchardet package.
 Group: Binaries
 Requires: pypi-cchardet-license = %{version}-%{release}
+Requires: pypi-cchardet-filemap = %{version}-%{release}
 
 %description bin
 bin components for the pypi-cchardet package.
+
+
+%package filemap
+Summary: filemap components for the pypi-cchardet package.
+Group: Default
+
+%description filemap
+filemap components for the pypi-cchardet package.
+
+
+%package lib
+Summary: lib components for the pypi-cchardet package.
+Group: Libraries
+Requires: pypi-cchardet-license = %{version}-%{release}
+Requires: pypi-cchardet-filemap = %{version}-%{release}
+
+%description lib
+lib components for the pypi-cchardet package.
 
 
 %package license
@@ -53,6 +74,7 @@ python components for the pypi-cchardet package.
 %package python3
 Summary: python3 components for the pypi-cchardet package.
 Group: Default
+Requires: pypi-cchardet-filemap = %{version}-%{release}
 Requires: python3-core
 Provides: pypi(cchardet)
 
@@ -63,13 +85,16 @@ python3 components for the pypi-cchardet package.
 %prep
 %setup -q -n cchardet-2.1.7
 cd %{_builddir}/cchardet-2.1.7
+pushd ..
+cp -a cchardet-2.1.7 buildavx2
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1645465247
+export SOURCE_DATE_EPOCH=1653007838
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -81,6 +106,15 @@ export CXXFLAGS="$CXXFLAGS -O3 -ffat-lto-objects -flto=auto "
 export MAKEFLAGS=%{?_smp_mflags}
 python3 setup.py build
 
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 setup.py build
+
+popd
 %install
 export MAKEFLAGS=%{?_smp_mflags}
 rm -rf %{buildroot}
@@ -91,6 +125,15 @@ python3 -tt setup.py build  install --root=%{buildroot}
 echo ----[ mark ]----
 cat %{buildroot}/usr/lib/python3*/site-packages/*/requires.txt || :
 echo ----[ mark ]----
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3 "
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3 "
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3 "
+python3 -tt setup.py build install --root=%{buildroot}-v3
+popd
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
@@ -98,6 +141,14 @@ echo ----[ mark ]----
 %files bin
 %defattr(-,root,root,-)
 /usr/bin/cchardetect
+
+%files filemap
+%defattr(-,root,root,-)
+/usr/share/clear/filemap/filemap-pypi-cchardet
+
+%files lib
+%defattr(-,root,root,-)
+/usr/share/clear/optimized-elf/other*
 
 %files license
 %defattr(0644,root,root,0755)
